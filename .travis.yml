@@ -1,0 +1,66 @@
+matrix:
+  fast_finish: true
+  include:
+    - os: osx
+      osx_image: xcode10.1
+    - os: windows
+    - os: linux
+      dist: xenial
+      compiler: clang
+    - os: linux
+      dist: xenial
+      compiler: gcc
+    - os: linux
+      dist: bionic
+      compiler: clang
+    - os: linux
+      dist: bionic
+      compiler: gcc
+    - os: linux
+      arch: arm64
+      dist: xenial
+      compiler: clang
+    - os: linux
+      arch: arm64
+      dist: xenial
+      compiler: gcc
+    - os: linux
+      arch: arm64
+      dist: bionic
+      compiler: clang
+    - os: linux
+      arch: arm64
+      dist: bionic
+      compiler: gcc
+
+language: cpp
+
+cache: ccache
+
+script:
+- cmake -E make_directory build && cd build
+- |-
+    case $TRAVIS_OS_NAME in
+      windows)
+        cmake -G "Visual Studio 15 2017" -D CMAKE_BUILD_TYPE=Debug ..
+        ;;
+      linux)
+        cmake -G "Unix Makefiles" -D CMAKE_BUILD_TYPE=Release ..
+        ;;
+      osx)
+        cmake -G "Unix Makefiles" -D CMAKE_BUILD_TYPE=Release ..
+        ;;
+    esac
+- cmake --build .
+- |-
+    case $TRAVIS_OS_NAME in
+      windows)  
+        ctest -VV --output-on-failure -C Debug
+        ;;
+      linux)
+        cmake --build . --target test
+        ;;
+      osx)
+        cmake --build . --target test
+        ;;
+    esac
