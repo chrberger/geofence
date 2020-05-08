@@ -2,6 +2,7 @@
  * MIT License
  *
  * Copyright (c) 2020  Christian Berger
+ * Copyrihgt (c) 1970  W. Randolph Franklin
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +23,43 @@
  * SOFTWARE.
  */
 
+// The algorithms is based on W. Randolph Franklin's implementation that can be found here:
+// https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
+
 #ifndef GEOFENCE_HPP
 #define GEOFENCE_HPP
 
 #include <cmath>
+#include <cstdint>
 #include <array>
 #include <type_traits>
+#include <vector>
 
 namespace geofence {
 
 /**
- * @param A first number
- * @param B second number
- * @return checks whether A is smaller than B
+ * @param polygon describing a geofenced area
+ * @param p point to test whether inside or not
+ * @return true if p is inside polygon
  */
 template <typename T>
-bool isIn(T A, T B) {
-    static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
-    return (A < B);
+inline bool isIn(std::vector<std::array<T,2>> &polygon, std::array<T,2> &p) {
+  static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
+  bool inside{false};
+  if (0 < polygon.size()) {
+    constexpr const uint8_t X{0};
+    constexpr const uint8_t Y{1};
+    const std::size_t POINTS{polygon.size()};
+    std::size_t i{0};
+    std::size_t j{POINTS - 1};
+    for(; i < POINTS ; j = i++) {
+      if ( ((polygon.at(i)[Y] > p[Y]) != (polygon.at(j)[Y] > p[Y])) &&
+           (p[X] < (polygon.at(j)[X]-polygon.at(i)[X]) * (p[Y]-polygon.at(i)[Y]) / (polygon.at(j)[Y]-polygon.at(i)[Y]) + polygon.at(i)[X]) ) {
+        inside = !inside;
+      }
+    }
+  }
+  return inside;
 }
 
 }

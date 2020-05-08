@@ -29,7 +29,87 @@
 
 #include <string>
 
-TEST_CASE("From WGS84 to Cartesian: Identical WGS84 position") {
-    REQUIRE(geofence::isIn<int>(6, 7));
+TEST_CASE("non-poplygon returns false") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> point{1, 2};
+    REQUIRE(!geofence::isIn<int>(polygon, point));
+}
+
+TEST_CASE("one-point-poplygon returns false") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{0,0};
+    polygon.push_back(a);
+    std::array<int,2> point{1, 2};
+    REQUIRE(!geofence::isIn<int>(polygon, point));
+}
+
+TEST_CASE("two-points-poplygon returns false") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{0,0};
+    std::array<int,2> b{10,0};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    std::array<int,2> point{5, 1};
+    REQUIRE(!geofence::isIn<int>(polygon, point));
+}
+
+TEST_CASE("three-points-poplygon and point inside returns true") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{0,0};
+    std::array<int,2> b{10,0};
+    std::array<int,2> c{10,10};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    std::array<int,2> point{5, 1};
+    REQUIRE(geofence::isIn<int>(polygon, point));
+}
+
+TEST_CASE("three-points-poplygon and point on side returns false") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{0,0};
+    std::array<int,2> b{10,0};
+    std::array<int,2> c{10,10};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    std::array<int,2> point{5, 0};
+    REQUIRE(geofence::isIn<int>(polygon, point));
+}
+
+TEST_CASE("three-points-poplygon and point outside returns false") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{0,0};
+    std::array<int,2> b{10,0};
+    std::array<int,2> c{10,10};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    std::array<int,2> point{5, 50};
+    REQUIRE(!geofence::isIn<int>(polygon, point));
+}
+
+TEST_CASE("three-points-poplygon and float point outside returns false") {
+    std::vector<std::array<float,2>> polygon;
+    std::array<float,2> a{0,0};
+    std::array<float,2> b{9.1,0};
+    std::array<float,2> c{10.1,10.7};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    std::array<float,2> point{5.1, 50.5};
+    REQUIRE(!geofence::isIn<float>(polygon, point));
+}
+
+TEST_CASE("three-points-poplygon and float point inside returns true") {
+    std::vector<std::array<float,2>> polygon;
+    std::array<float,2> a{0,0};
+    std::array<float,2> b{10.1,0};
+    std::array<float,2> c{10.2,10.3};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    std::array<float,2> point{5.2, 1.1};
+    REQUIRE(geofence::isIn<float>(polygon, point));
 }
 
