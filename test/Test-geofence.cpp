@@ -113,3 +113,39 @@ TEST_CASE("three-points-poplygon and float point inside returns true") {
     REQUIRE(geofence::isIn<float>(polygon, point));
 }
 
+TEST_CASE("WGS84 geofencing area - point outside") {
+    std::vector<std::array<float,2>> polygon;
+    std::array<float,2> a{57.725132, 11.916693};
+    std::array<float,2> b{57.741855, 12.085297};
+    std::array<float,2> c{57.746395, 12.214843};
+    std::array<float,2> d{57.739790, 12.219870};
+    std::array<float,2> e{57.730294, 12.089550};
+    std::array<float,2> f{57.712741, 11.992101};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    polygon.push_back(d);
+    polygon.push_back(e);
+    polygon.push_back(f);
+    std::array<float,2> point{57.675747, 12.135182};
+    REQUIRE(!geofence::isIn<float>(polygon, point));
+}
+
+TEST_CASE("WGS84 geofencing area - point inside") {
+    std::vector<std::array<float,2>> polygon;
+    std::array<float,2> a{57.725132, 11.916693};
+    std::array<float,2> b{57.741855, 12.085297};
+    std::array<float,2> c{57.746395, 12.214843};
+    std::array<float,2> d{57.739790, 12.219870};
+    std::array<float,2> e{57.730294, 12.089550};
+    std::array<float,2> f{57.712741, 11.992101};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    polygon.push_back(d);
+    polygon.push_back(e);
+    polygon.push_back(f);
+    std::array<float,2> point{57.736694, 12.096124};
+    REQUIRE(geofence::isIn<float>(polygon, point));
+}
+
