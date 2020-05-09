@@ -35,15 +35,6 @@
 
 namespace geofence {
 
-/*
-Further aspects to consider:
-- test if point is outside bounding box --> also outside polygon (DONE)
-- repair self-intersecting polygon to non-self-intersecting polygon (DONE)
-- test if point is vertex --> true (DONE)
-- test if point is on edge --> true
-- run WRF algorithm
-*/
-
 /**
  * @param a
  * @param b
@@ -75,57 +66,6 @@ inline bool isInBetween(std::array<T,2> a, std::array<T,2> b, std::array<T,2> c)
 }
 
 /**
- * @param axis-aligned boundingbox
- * @param p point
- * @return true if point is inside this rectangle to enable quick testing
- */
-template <typename T>
-inline bool isInAxisAlignedBoundingBox(std::vector<std::array<T,2>> &bb, std::array<T,2> p) {
-  static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
-  bool inside{false};
-  if (2 == bb.size()) {
-    constexpr const uint8_t X{0};
-    constexpr const uint8_t Y{1};
-    inside = ((bb.at(0)[X] < p[X]) && (p[X] < bb.at(1)[X])) &&
-             ((bb.at(0)[Y] > p[Y]) && (p[Y] > bb.at(1)[Y]));
-  }
-  return inside;
-}
-
-/**
- * @param polygon with more than one vertex
- * @return axis-aligned bounding box, which can be used for quick testing whether point is inside this rectangle
- */
-template <typename T>
-inline std::vector<std::array<T,2>> getAxisAlignedBoundingBox(std::vector<std::array<T,2>> &polygon) {
-  static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
-  std::vector<std::array<T,2>> bb;
-  if (1 < polygon.size()) {
-    std::array<T,2> TL{(std::numeric_limits<T>::max)(), (std::numeric_limits<T>::min)()};
-    std::array<T,2> BR{(std::numeric_limits<T>::min)(), (std::numeric_limits<T>::max)()};
-    constexpr const uint8_t X{0};
-    constexpr const uint8_t Y{1};
-    for(auto p : polygon) {
-      if (p[X] < TL[X]) {
-        TL[X] = p[X];
-      }
-      if (p[Y] > TL[Y]) {
-        TL[Y] = p[Y];
-      }
-      if (BR[X] < p[X]) {
-        BR[X] = p[X];
-      }
-      if (BR[Y] > p[Y]) {
-        BR[Y] = p[Y];
-      }
-    }
-    bb.push_back(TL);
-    bb.push_back(BR);
-  }
-  return bb;
-}
-
-/**
  * @param a
  * @param b
  * @return true if a and b are (almost - in case of floating points) equal
@@ -149,7 +89,7 @@ inline bool isEqual(T a, T b) {
  * @return convex hull
  */
 template <typename T>
-inline bool getConvexHull(const std::vector<std::array<T,2>> &polygon) {
+inline std::vector<std::array<T,2>> getConvexHull(const std::vector<std::array<T,2>> &polygon) {
   static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
 
   // Inspired by: https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain#C++ 
@@ -157,7 +97,7 @@ inline bool getConvexHull(const std::vector<std::array<T,2>> &polygon) {
   auto isLeft = [](const std::array<T,2> &a, const std::array<T,2> &b) {
     constexpr const uint8_t X{0};
     constexpr const uint8_t Y{1};
-	  return (a[X] < b[X] || (a[X] == b[X] && a[Y] < b[Y]));
+	  return (a[X] < b[X] || ( ( !(a[X] < b[X]) && !(a[X] > b[X]) /*a[X] == b[X]*/ ) && a[Y] < b[Y]));
   };
 
   auto ccw = [](const std::array<T,2> &a, const std::array<T,2> &b, const std::array<T,2> &c) {
@@ -172,7 +112,7 @@ inline bool getConvexHull(const std::vector<std::array<T,2>> &polygon) {
   // Construct lower half of convex hull.
   std::vector<std::array<T,2>> lowerHalf;
   for(auto it{sortedPolygon.begin()}; it != sortedPolygon.end(); ++it) {
-    while(lowerHalf.size() >= 2 && (!ccw(*(lowerHalf.rbegin()+1), *(lowerHalf.rbegin()), *it) < 0)) {
+    while(lowerHalf.size() >= 2 && !(ccw(*(lowerHalf.rbegin()+1), *(lowerHalf.rbegin()), *it) < 0)) {
       lowerHalf.pop_back();
     }
     lowerHalf.push_back(*it);
@@ -181,7 +121,7 @@ inline bool getConvexHull(const std::vector<std::array<T,2>> &polygon) {
   // Construct upper half of convex hull.
   std::vector<std::array<T,2>> upperHalf;
   for(auto it{sortedPolygon.rbegin()}; it != sortedPolygon.rend(); ++it) {
-    while(upperHalf.size() >= 2 && (!ccw(*(upperHalf.rbegin()+1), *(upperHalf.rbegin()), *it) < 0)) {
+    while(upperHalf.size() >= 2 && !(ccw(*(upperHalf.rbegin()+1), *(upperHalf.rbegin()), *it) < 0)) {
       upperHalf.pop_back();
     }
     upperHalf.push_back(*it);
@@ -203,20 +143,21 @@ inline bool isIn(std::vector<std::array<T,2>> &polygon, std::array<T,2> &p) {
   static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
   bool inside{false};
   if (2 < polygon.size()) {
+    auto convexHull{getConvexHull<T>(polygon)};
     constexpr const uint8_t X{0};
     constexpr const uint8_t Y{1};
-    const std::size_t POINTS{polygon.size()};
+    const std::size_t POINTS{convexHull.size()};
     std::size_t i{0};
     std::size_t j{POINTS - 1};
     for(; i < POINTS ; j = i++) {
-      if ( isEqual(p[X], polygon.at(i)[X]) && isEqual(p[Y], polygon.at(i)[Y]) ) {
+      if ( isEqual(p[X], convexHull.at(i)[X]) && isEqual(p[Y], convexHull.at(i)[Y]) ) {
         return true;
       }
 
       // The algorithms is based on W. Randolph Franklin's implementation that can be found here:
       // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
-      if ( ((polygon.at(i)[Y] > p[Y]) != (polygon.at(j)[Y] > p[Y])) &&
-           (p[X] < (polygon.at(j)[X]-polygon.at(i)[X]) * (p[Y]-polygon.at(i)[Y]) / (polygon.at(j)[Y]-polygon.at(i)[Y]) + polygon.at(i)[X]) ) {
+      if ( ((convexHull.at(i)[Y] > p[Y]) != (convexHull.at(j)[Y] > p[Y])) &&
+           (p[X] < (convexHull.at(j)[X]-convexHull.at(i)[X]) * (p[Y]-convexHull.at(i)[Y]) / (convexHull.at(j)[Y]-convexHull.at(i)[Y]) + convexHull.at(i)[X]) ) {
         inside = !inside;
       }
     }
