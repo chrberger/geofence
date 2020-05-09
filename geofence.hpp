@@ -32,11 +32,64 @@
 #include <cmath>
 #include <cstdint>
 #include <array>
+#include <limits>
 #include <type_traits>
 #include <vector>
 
 namespace geofence {
 
+/*
+Further aspects to consider:
+- test if point is outside bounding box --> also outside polygon
+- repair self-intersecting polygon to non-self-intersecting polygon
+- test if point is vertex --> true
+- test if point is on edge --> true
+- run WRF algorithm
+*/
+
+template <typename T>
+inline bool isInAxisAlignedBoundingBox(std::vector<std::array<T,2>> &bb, std::array<T,2> p) {
+  static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
+  bool inside{false};
+  if (2 == bb.size()) {
+    constexpr const uint8_t X{0};
+    constexpr const uint8_t Y{1};
+    inside = ((bb.at(0)[X] < p[X]) && (p[X] < bb.at(1)[X])) &&
+             ((bb.at(0)[Y] > p[Y]) && (p[Y] > bb.at(1)[Y]));
+  }
+  return inside;
+}
+ 
+
+template <typename T>
+inline std::vector<std::array<T,2>> getAxisAlignedBoundingBox(std::vector<std::array<T,2>> &polygon) {
+  static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
+  std::vector<std::array<T,2>> bb;
+  if (1 < polygon.size()) {
+    std::array<T,2> TL{(std::numeric_limits<T>::max)(), (std::numeric_limits<T>::min)()};
+    std::array<T,2> BR{(std::numeric_limits<T>::min)(), (std::numeric_limits<T>::max)()};
+    constexpr const uint8_t X{0};
+    constexpr const uint8_t Y{1};
+    for(auto p : polygon) {
+      if (p[X] < TL[X]) {
+        TL[X] = p[X];
+      }
+      if (p[Y] > TL[Y]) {
+        TL[Y] = p[Y];
+      }
+      if (BR[X] < p[X]) {
+        BR[X] = p[X];
+      }
+      if (BR[Y] > p[Y]) {
+        BR[Y] = p[Y];
+      }
+    }
+    bb.push_back(TL);
+    bb.push_back(BR);
+  }
+  return bb;
+}
+ 
 /**
  * @param polygon describing a geofenced area
  * @param p point to test whether inside or not

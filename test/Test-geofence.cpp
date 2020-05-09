@@ -29,6 +29,90 @@
 
 #include <string>
 
+TEST_CASE("determining BB from non-polygon is empty") {
+    std::vector<std::array<int,2>> polygon;
+    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+    REQUIRE(0 == bb.size());
+}
+
+TEST_CASE("determining BB from one-polygon is empty") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{0,0};
+    polygon.push_back(a);
+    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+    REQUIRE(0 == bb.size());
+}
+
+TEST_CASE("determining BB from two-polygon") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{3,1};
+    std::array<int,2> b{0,-5};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+    REQUIRE(1 != bb.size());
+    REQUIRE(bb.at(0)[0] == 0);
+    REQUIRE(bb.at(0)[1] == 1);
+    REQUIRE(bb.at(1)[0] == 3);
+    REQUIRE(bb.at(1)[1] == -5);
+}
+
+TEST_CASE("determining BB from three-polygon") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{3,1};
+    std::array<int,2> b{1,2};
+    std::array<int,2> c{0,-5};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+    REQUIRE(1 != bb.size());
+    REQUIRE(bb.at(0)[0] == 0);
+    REQUIRE(bb.at(0)[1] == 2);
+    REQUIRE(bb.at(1)[0] == 3);
+    REQUIRE(bb.at(1)[1] == -5);
+}
+
+TEST_CASE("test that point is not in BB from three-polygon") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{3,1};
+    std::array<int,2> b{1,2};
+    std::array<int,2> c{0,-5};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+    REQUIRE(1 != bb.size());
+    REQUIRE(bb.at(0)[0] == 0);
+    REQUIRE(bb.at(0)[1] == 2);
+    REQUIRE(bb.at(1)[0] == 3);
+    REQUIRE(bb.at(1)[1] == -5);
+
+    std::array<int,2> point{1, 10};
+    REQUIRE(!geofence::isInAxisAlignedBoundingBox<int>(bb, point));
+}
+
+TEST_CASE("test that point is in BB from three-polygon") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{3,1};
+    std::array<int,2> b{1,2};
+    std::array<int,2> c{0,-5};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+    REQUIRE(1 != bb.size());
+    REQUIRE(bb.at(0)[0] == 0);
+    REQUIRE(bb.at(0)[1] == 2);
+    REQUIRE(bb.at(1)[0] == 3);
+    REQUIRE(bb.at(1)[1] == -5);
+
+    std::array<int,2> point{1, 1};
+    REQUIRE(geofence::isInAxisAlignedBoundingBox<int>(bb, point));
+}
+
+///////////////////////////////////////////////////////////////
+
 TEST_CASE("non-poplygon returns false") {
     std::vector<std::array<int,2>> polygon;
     std::array<int,2> point{1, 2};
