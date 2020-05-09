@@ -46,7 +46,7 @@ template <typename T>
 inline bool isIn(std::vector<std::array<T,2>> &polygon, std::array<T,2> &p) {
   static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
   bool inside{false};
-  if (0 < polygon.size()) {
+  if (2 < polygon.size()) {
     constexpr const uint8_t X{0};
     constexpr const uint8_t Y{1};
     const std::size_t POINTS{polygon.size()};
