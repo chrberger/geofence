@@ -77,6 +77,20 @@ TEST_CASE("three-points-poplygon and point on side returns false") {
     REQUIRE(geofence::isIn<int>(polygon, point));
 }
 
+TEST_CASE("square and point inside returns true") {
+    std::vector<std::array<int,2>> polygon;
+    std::array<int,2> a{0,0};
+    std::array<int,2> b{10,0};
+    std::array<int,2> c{10,10};
+    std::array<int,2> d{0,10};
+    polygon.push_back(a);
+    polygon.push_back(b);
+    polygon.push_back(c);
+    polygon.push_back(d);
+    std::array<int,2> point{5, 5};
+    REQUIRE(geofence::isIn<int>(polygon, point));
+}
+
 TEST_CASE("three-points-poplygon and point outside returns false") {
     std::vector<std::array<int,2>> polygon;
     std::array<int,2> a{0,0};
