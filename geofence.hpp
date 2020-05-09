@@ -38,36 +38,6 @@ namespace geofence {
 /**
  * @param a
  * @param b
- * @param c
- * @return true if c is on the line defined by a and b and also between a and b
- */
-template <typename T>
-inline bool isInBetween(std::array<T,2> a, std::array<T,2> b, std::array<T,2> c) {
-  constexpr const auto EPSILON = 1.0e-09f;
-  constexpr const uint8_t X{0};
-  constexpr const uint8_t Y{1};
-
-  const T crossproduct = (c[Y] - a[Y]) * (b[X] - a[X]) - (c[X] - a[X]) * (b[Y] - a[Y]);
-  if (std::abs(crossproduct) > EPSILON) {
-    return false;
-  }
-
-  const T dotproduct = (c[X] - a[X]) * (b[X] - a[X]) + (c[Y] - a[Y]) * (b[Y] - a[Y]);
-  if (dotproduct < 0) {
-    return false;
-  }
-
-  const T squaredLengthBA = (b[X] - a[X]) * (b[X] - a[X]) + (b[Y] - a[Y]) * (b[Y] - a[Y]);
-  if (dotproduct > squaredLengthBA) {
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * @param a
- * @param b
  * @return true if a and b are (almost - in case of floating points) equal
  */
 template <typename T>
@@ -97,7 +67,7 @@ inline std::vector<std::array<T,2>> getConvexHull(const std::vector<std::array<T
   auto isLeft = [](const std::array<T,2> &a, const std::array<T,2> &b) {
     constexpr const uint8_t X{0};
     constexpr const uint8_t Y{1};
-	  return (a[X] < b[X] || ( ( !(a[X] < b[X]) && !(a[X] > b[X]) /*a[X] == b[X]*/ ) && a[Y] < b[Y]));
+	  return (a[X] < b[X] || ( (!(a[X] < b[X]) && !(a[X] > b[X]) /*a[X] == b[X]*/) && a[Y] < b[Y]) );
   };
 
   auto ccw = [](const std::array<T,2> &a, const std::array<T,2> &b, const std::array<T,2> &c) {
