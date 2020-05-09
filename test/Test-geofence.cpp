@@ -27,223 +27,231 @@
 
 #include "geofence.hpp"
 
-#include <string>
+TEST_CASE("equality checks") {
+  REQUIRE(geofence::isEqual<uint16_t>(15, 15));
+  REQUIRE(!geofence::isEqual<int16_t>(15, -15));
+  REQUIRE(!geofence::isEqual<float>(0, 0.001f));
+  REQUIRE(geofence::isEqual<float>(0.0009f, 0.0009f));
+  REQUIRE(geofence::isEqual<double>(0.0000009f, 0.0000009f));
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 TEST_CASE("determining BB from non-polygon is empty") {
-    std::vector<std::array<int,2>> polygon;
-    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
-    REQUIRE(0 == bb.size());
+  std::vector<std::array<int,2>> polygon;
+  auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+  REQUIRE(0 == bb.size());
 }
 
 TEST_CASE("determining BB from one-polygon is empty") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{0,0};
-    polygon.push_back(a);
-    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
-    REQUIRE(0 == bb.size());
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{0,0};
+  polygon.push_back(a);
+  auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+  REQUIRE(0 == bb.size());
 }
 
 TEST_CASE("determining BB from two-polygon") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{3,1};
-    std::array<int,2> b{0,-5};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
-    REQUIRE(1 != bb.size());
-    REQUIRE(bb.at(0)[0] == 0);
-    REQUIRE(bb.at(0)[1] == 1);
-    REQUIRE(bb.at(1)[0] == 3);
-    REQUIRE(bb.at(1)[1] == -5);
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{3,1};
+  std::array<int,2> b{0,-5};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+  REQUIRE(1 != bb.size());
+  REQUIRE(bb.at(0)[0] == 0);
+  REQUIRE(bb.at(0)[1] == 1);
+  REQUIRE(bb.at(1)[0] == 3);
+  REQUIRE(bb.at(1)[1] == -5);
 }
 
 TEST_CASE("determining BB from three-polygon") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{3,1};
-    std::array<int,2> b{1,2};
-    std::array<int,2> c{0,-5};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
-    REQUIRE(1 != bb.size());
-    REQUIRE(bb.at(0)[0] == 0);
-    REQUIRE(bb.at(0)[1] == 2);
-    REQUIRE(bb.at(1)[0] == 3);
-    REQUIRE(bb.at(1)[1] == -5);
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{3,1};
+  std::array<int,2> b{1,2};
+  std::array<int,2> c{0,-5};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+  REQUIRE(1 != bb.size());
+  REQUIRE(bb.at(0)[0] == 0);
+  REQUIRE(bb.at(0)[1] == 2);
+  REQUIRE(bb.at(1)[0] == 3);
+  REQUIRE(bb.at(1)[1] == -5);
 }
 
 TEST_CASE("test that point is not in BB from three-polygon") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{3,1};
-    std::array<int,2> b{1,2};
-    std::array<int,2> c{0,-5};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
-    REQUIRE(1 != bb.size());
-    REQUIRE(bb.at(0)[0] == 0);
-    REQUIRE(bb.at(0)[1] == 2);
-    REQUIRE(bb.at(1)[0] == 3);
-    REQUIRE(bb.at(1)[1] == -5);
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{3,1};
+  std::array<int,2> b{1,2};
+  std::array<int,2> c{0,-5};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+  REQUIRE(1 != bb.size());
+  REQUIRE(bb.at(0)[0] == 0);
+  REQUIRE(bb.at(0)[1] == 2);
+  REQUIRE(bb.at(1)[0] == 3);
+  REQUIRE(bb.at(1)[1] == -5);
 
-    std::array<int,2> point{1, 10};
-    REQUIRE(!geofence::isInAxisAlignedBoundingBox<int>(bb, point));
+  std::array<int,2> point{1, 10};
+  REQUIRE(!geofence::isInAxisAlignedBoundingBox<int>(bb, point));
 }
 
 TEST_CASE("test that point is in BB from three-polygon") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{3,1};
-    std::array<int,2> b{1,2};
-    std::array<int,2> c{0,-5};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
-    REQUIRE(1 != bb.size());
-    REQUIRE(bb.at(0)[0] == 0);
-    REQUIRE(bb.at(0)[1] == 2);
-    REQUIRE(bb.at(1)[0] == 3);
-    REQUIRE(bb.at(1)[1] == -5);
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{3,1};
+  std::array<int,2> b{1,2};
+  std::array<int,2> c{0,-5};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  auto bb = geofence::getAxisAlignedBoundingBox<int>(polygon);
+  REQUIRE(1 != bb.size());
+  REQUIRE(bb.at(0)[0] == 0);
+  REQUIRE(bb.at(0)[1] == 2);
+  REQUIRE(bb.at(1)[0] == 3);
+  REQUIRE(bb.at(1)[1] == -5);
 
-    std::array<int,2> point{1, 1};
-    REQUIRE(geofence::isInAxisAlignedBoundingBox<int>(bb, point));
+  std::array<int,2> point{1, 1};
+  REQUIRE(geofence::isInAxisAlignedBoundingBox<int>(bb, point));
 }
 
-///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 TEST_CASE("non-poplygon returns false") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> point{1, 2};
-    REQUIRE(!geofence::isIn<int>(polygon, point));
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> point{1, 2};
+  REQUIRE(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("one-point-poplygon returns false") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{0,0};
-    polygon.push_back(a);
-    std::array<int,2> point{1, 2};
-    REQUIRE(!geofence::isIn<int>(polygon, point));
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{0,0};
+  polygon.push_back(a);
+  std::array<int,2> point{1, 2};
+  REQUIRE(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("two-points-poplygon returns false") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{0,0};
-    std::array<int,2> b{10,0};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    std::array<int,2> point{5, 1};
-    REQUIRE(!geofence::isIn<int>(polygon, point));
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{0,0};
+  std::array<int,2> b{10,0};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  std::array<int,2> point{5, 1};
+  REQUIRE(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and point inside returns true") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{0,0};
-    std::array<int,2> b{10,0};
-    std::array<int,2> c{10,10};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    std::array<int,2> point{5, 1};
-    REQUIRE(geofence::isIn<int>(polygon, point));
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{0,0};
+  std::array<int,2> b{10,0};
+  std::array<int,2> c{10,10};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  std::array<int,2> point{5, 1};
+  REQUIRE(geofence::isIn<int>(polygon, point));
 }
 
-TEST_CASE("three-points-poplygon and point on side returns false") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{0,0};
-    std::array<int,2> b{10,0};
-    std::array<int,2> c{10,10};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    std::array<int,2> point{5, 0};
-    REQUIRE(geofence::isIn<int>(polygon, point));
+TEST_CASE("three-points-poplygon and point on side returns true") {
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{0,0};
+  std::array<int,2> b{10,0};
+  std::array<int,2> c{10,10};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  std::array<int,2> point{5, 0};
+  REQUIRE(geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("square and point inside returns true") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{0,0};
-    std::array<int,2> b{10,0};
-    std::array<int,2> c{10,10};
-    std::array<int,2> d{0,10};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    polygon.push_back(d);
-    std::array<int,2> point{5, 5};
-    REQUIRE(geofence::isIn<int>(polygon, point));
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{0,0};
+  std::array<int,2> b{10,0};
+  std::array<int,2> c{10,10};
+  std::array<int,2> d{0,10};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  polygon.push_back(d);
+  std::array<int,2> point{5, 5};
+  REQUIRE(geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and point outside returns false") {
-    std::vector<std::array<int,2>> polygon;
-    std::array<int,2> a{0,0};
-    std::array<int,2> b{10,0};
-    std::array<int,2> c{10,10};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    std::array<int,2> point{5, 50};
-    REQUIRE(!geofence::isIn<int>(polygon, point));
+  std::vector<std::array<int,2>> polygon;
+  std::array<int,2> a{0,0};
+  std::array<int,2> b{10,0};
+  std::array<int,2> c{10,10};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  std::array<int,2> point{5, 50};
+  REQUIRE(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and float point outside returns false") {
-    std::vector<std::array<float,2>> polygon;
-    std::array<float,2> a{0,0};
-    std::array<float,2> b{9.1,0};
-    std::array<float,2> c{10.1,10.7};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    std::array<float,2> point{5.1, 50.5};
-    REQUIRE(!geofence::isIn<float>(polygon, point));
+  std::vector<std::array<float,2>> polygon;
+  std::array<float,2> a{0,0};
+  std::array<float,2> b{9.1,0};
+  std::array<float,2> c{10.1,10.7};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  std::array<float,2> point{5.1, 50.5};
+  REQUIRE(!geofence::isIn<float>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and float point inside returns true") {
-    std::vector<std::array<float,2>> polygon;
-    std::array<float,2> a{0,0};
-    std::array<float,2> b{10.1,0};
-    std::array<float,2> c{10.2,10.3};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    std::array<float,2> point{5.2, 1.1};
-    REQUIRE(geofence::isIn<float>(polygon, point));
+  std::vector<std::array<float,2>> polygon;
+  std::array<float,2> a{0,0};
+  std::array<float,2> b{10.1,0};
+  std::array<float,2> c{10.2,10.3};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  std::array<float,2> point{5.2, 1.1};
+  REQUIRE(geofence::isIn<float>(polygon, point));
 }
 
 TEST_CASE("WGS84 geofencing area - point outside") {
-    std::vector<std::array<float,2>> polygon;
-    std::array<float,2> a{57.725132, 11.916693};
-    std::array<float,2> b{57.741855, 12.085297};
-    std::array<float,2> c{57.746395, 12.214843};
-    std::array<float,2> d{57.739790, 12.219870};
-    std::array<float,2> e{57.730294, 12.089550};
-    std::array<float,2> f{57.712741, 11.992101};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    polygon.push_back(d);
-    polygon.push_back(e);
-    polygon.push_back(f);
-    std::array<float,2> point{57.675747, 12.135182};
-    REQUIRE(!geofence::isIn<float>(polygon, point));
+  std::vector<std::array<float,2>> polygon;
+  std::array<float,2> a{57.725132, 11.916693};
+  std::array<float,2> b{57.741855, 12.085297};
+  std::array<float,2> c{57.746395, 12.214843};
+  std::array<float,2> d{57.739790, 12.219870};
+  std::array<float,2> e{57.730294, 12.089550};
+  std::array<float,2> f{57.712741, 11.992101};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  polygon.push_back(d);
+  polygon.push_back(e);
+  polygon.push_back(f);
+  std::array<float,2> point{57.675747, 12.135182};
+  REQUIRE(!geofence::isIn<float>(polygon, point));
 }
 
 TEST_CASE("WGS84 geofencing area - point inside") {
-    std::vector<std::array<float,2>> polygon;
-    std::array<float,2> a{57.725132, 11.916693};
-    std::array<float,2> b{57.741855, 12.085297};
-    std::array<float,2> c{57.746395, 12.214843};
-    std::array<float,2> d{57.739790, 12.219870};
-    std::array<float,2> e{57.730294, 12.089550};
-    std::array<float,2> f{57.712741, 11.992101};
-    polygon.push_back(a);
-    polygon.push_back(b);
-    polygon.push_back(c);
-    polygon.push_back(d);
-    polygon.push_back(e);
-    polygon.push_back(f);
-    std::array<float,2> point{57.736694, 12.096124};
-    REQUIRE(geofence::isIn<float>(polygon, point));
+  std::vector<std::array<float,2>> polygon;
+  std::array<float,2> a{57.725132, 11.916693};
+  std::array<float,2> b{57.741855, 12.085297};
+  std::array<float,2> c{57.746395, 12.214843};
+  std::array<float,2> d{57.739790, 12.219870};
+  std::array<float,2> e{57.730294, 12.089550};
+  std::array<float,2> f{57.712741, 11.992101};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  polygon.push_back(d);
+  polygon.push_back(e);
+  polygon.push_back(f);
+  std::array<float,2> point{57.736694, 12.096124};
+  REQUIRE(geofence::isIn<float>(polygon, point));
 }
 

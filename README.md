@@ -2,7 +2,7 @@
 
 ![C/C++ CI](https://github.com/chrberger/geofence/workflows/C/C++%20CI/badge.svg) [![Build Status](https://travis-ci.org/chrberger/geofence.svg?branch=master)](https://travis-ci.org/chrberger/geofence) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-geofence is a small and efficient library written in modern C++ library to test whether a coordinate is inside a polygon of coordinates to realize, for instance, WGS84 geofencing.
+geofence is a small and efficient library written in modern C++ library to test whether a coordinate is inside a polygon to realize, for instance, WGS84 geofencing.
 
 geofence is available as single-file, header-only library - just drop geofence.hpp into your project, #include "geofence.hpp", and compile your project with a modern C++ compiler (C++11 or newer).
 
