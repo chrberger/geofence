@@ -106,29 +106,27 @@ inline std::vector<std::array<T,2>> getConvexHull(const std::vector<std::array<T
 /**
  * @param polygon describing a geofenced area
  * @param p point to test whether inside or not
- * @return true if p is inside the convex hull for the polygon OR when p is any vertex OR on an edge of the convex hull
+ * @return true if p is inside the polygon OR when p is any vertex OR on an edge of the convex hull
  */
 template <typename T>
 inline bool isIn(std::vector<std::array<T,2>> &polygon, std::array<T,2> &p) {
   static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
   bool inside{false};
   if (2 < polygon.size()) {
-    //auto convexHull{getConvexHull<T>(polygon)};
-    auto convexHull{polygon};
     constexpr const uint8_t X{0};
     constexpr const uint8_t Y{1};
-    const std::size_t POINTS{convexHull.size()};
+    const std::size_t POINTS{polygon.size()};
     std::size_t i{0};
     std::size_t j{POINTS - 1};
     for(; i < POINTS ; j = i++) {
-      if ( isEqual(p[X], convexHull.at(i)[X]) && isEqual(p[Y], convexHull.at(i)[Y]) ) {
+      if ( isEqual(p[X], polygon.at(i)[X]) && isEqual(p[Y], polygon.at(i)[Y]) ) {
         return true;
       }
 
       // The algorithms is based on W. Randolph Franklin's implementation that can be found here:
       // https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
-      if ( ((convexHull.at(i)[Y] > p[Y]) != (convexHull.at(j)[Y] > p[Y])) &&
-           (p[X] < (convexHull.at(j)[X]-convexHull.at(i)[X]) * (p[Y]-convexHull.at(i)[Y]) / (convexHull.at(j)[Y]-convexHull.at(i)[Y]) + convexHull.at(i)[X]) ) {
+      if ( ((polygon.at(i)[Y] > p[Y]) != (polygon.at(j)[Y] > p[Y])) &&
+           (p[X] < (polygon.at(j)[X]-polygon.at(i)[X]) * (p[Y]-polygon.at(i)[Y]) / (polygon.at(j)[Y]-polygon.at(i)[Y]) + polygon.at(i)[X]) ) {
         inside = !inside;
       }
     }
