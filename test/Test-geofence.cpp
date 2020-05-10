@@ -24,6 +24,8 @@
 
 #include "catch.hpp"
 
+#include <iostream>
+
 #include "geofence.hpp"
 
 TEST_CASE("equality checks") {
@@ -72,7 +74,7 @@ TEST_CASE("three-points-poplygon and point inside returns true") {
   CHECK(geofence::isIn<int>(polygon, point));
 }
 
-TEST_CASE("three-points-poplygon and point on side returns true") {
+TEST_CASE("three-points-poplygon and point on edge returns true") {
   std::vector<std::array<int,2>> polygon;
   std::array<int,2> a{0,0};
   std::array<int,2> b{10,0};
@@ -170,7 +172,7 @@ TEST_CASE("WGS84 geofencing area - point inside") {
   CHECK(geofence::isIn<float>(polygon, point));
 }
 
-TEST_CASE("multiple tests") {
+TEST_CASE("multiple tests without convex hull") {
   std::vector<std::array<uint8_t,2>> polygon;
   std::array<uint8_t,2> a{1, 3};
   std::array<uint8_t,2> b{6, 14};
@@ -251,5 +253,102 @@ TEST_CASE("multiple tests") {
     std::array<uint8_t,2> point{17, 3};
     CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
+  {
+    std::array<uint8_t,2> point{10, 10};
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
+  }
 }
+
+TEST_CASE("multiple tests with convex hull") {
+  std::vector<std::array<uint8_t,2>> polygon;
+  std::array<uint8_t,2> a{1, 3};
+  std::array<uint8_t,2> b{6, 14};
+  std::array<uint8_t,2> c{9, 1};
+  std::array<uint8_t,2> d{17, 3};
+  std::array<uint8_t,2> e{12, 10};
+  std::array<uint8_t,2> f{5, 7};
+  std::array<uint8_t,2> g{12, 5};
+  polygon.push_back(a);
+  polygon.push_back(b);
+  polygon.push_back(c);
+  polygon.push_back(d);
+  polygon.push_back(e);
+  polygon.push_back(f);
+  polygon.push_back(g);
+
+  auto convexHull = geofence::getConvexHull(polygon);
+  std::cout << "convex hull is: " << std::endl;
+  for(auto p : convexHull) {
+    std::cout << "(" << +p[0] << "," << +p[1] << ")" << std::endl;
+  }
+
+  {
+    std::array<uint8_t,2> point{0, 0};
+    CHECK(!geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{100, 100};
+    CHECK(!geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{1, 3};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{4, 5};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{5, 7};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{6, 7};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{7, 7};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{8, 7};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{9, 5};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{10, 5};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{11, 5};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{12, 5};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{12, 10};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{13, 10};
+    CHECK(!geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{12, 11};
+    CHECK(!geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{17, 3};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+  {
+    std::array<uint8_t,2> point{10, 10};
+    CHECK(geofence::isIn<uint8_t>(convexHull, point));
+  }
+} 
 
