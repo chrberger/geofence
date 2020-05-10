@@ -351,4 +351,3 @@ TEST_CASE("multiple tests with convex hull") {
     CHECK(geofence::isIn<uint8_t>(convexHull, point));
   }
 } 
-
