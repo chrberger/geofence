@@ -22,17 +22,16 @@
  * SOFTWARE.
  */
 
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch.hpp"
 
 #include "geofence.hpp"
 
 TEST_CASE("equality checks") {
-  REQUIRE(geofence::isEqual<uint16_t>(15, 15));
-  REQUIRE(!geofence::isEqual<int16_t>(15, -15));
-  REQUIRE(!geofence::isEqual<float>(0, 0.001f));
-  REQUIRE(geofence::isEqual<float>(0.0009f, 0.0009f));
-  REQUIRE(geofence::isEqual<double>(0.0000009f, 0.0000009f));
+  CHECK(geofence::isEqual<uint16_t>(15, 15));
+  CHECK(!geofence::isEqual<int16_t>(15, -15));
+  CHECK(!geofence::isEqual<float>(0, 0.001f));
+  CHECK(geofence::isEqual<float>(0.0009f, 0.0009f));
+  CHECK(geofence::isEqual<double>(0.0000009f, 0.0000009f));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,7 +39,7 @@ TEST_CASE("equality checks") {
 TEST_CASE("non-poplygon returns false") {
   std::vector<std::array<int,2>> polygon;
   std::array<int,2> point{1, 2};
-  REQUIRE(!geofence::isIn<int>(polygon, point));
+  CHECK(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("one-point-poplygon returns false") {
@@ -48,7 +47,7 @@ TEST_CASE("one-point-poplygon returns false") {
   std::array<int,2> a{0,0};
   polygon.push_back(a);
   std::array<int,2> point{1, 2};
-  REQUIRE(!geofence::isIn<int>(polygon, point));
+  CHECK(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("two-points-poplygon returns false") {
@@ -58,7 +57,7 @@ TEST_CASE("two-points-poplygon returns false") {
   polygon.push_back(a);
   polygon.push_back(b);
   std::array<int,2> point{5, 1};
-  REQUIRE(!geofence::isIn<int>(polygon, point));
+  CHECK(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and point inside returns true") {
@@ -70,7 +69,7 @@ TEST_CASE("three-points-poplygon and point inside returns true") {
   polygon.push_back(b);
   polygon.push_back(c);
   std::array<int,2> point{5, 1};
-  REQUIRE(geofence::isIn<int>(polygon, point));
+  CHECK(geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and point on side returns true") {
@@ -82,7 +81,7 @@ TEST_CASE("three-points-poplygon and point on side returns true") {
   polygon.push_back(b);
   polygon.push_back(c);
   std::array<int,2> point{5, 0};
-  REQUIRE(geofence::isIn<int>(polygon, point));
+  CHECK(geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("square and point inside returns true") {
@@ -96,7 +95,7 @@ TEST_CASE("square and point inside returns true") {
   polygon.push_back(c);
   polygon.push_back(d);
   std::array<int,2> point{5, 5};
-  REQUIRE(geofence::isIn<int>(polygon, point));
+  CHECK(geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and point outside returns false") {
@@ -108,7 +107,7 @@ TEST_CASE("three-points-poplygon and point outside returns false") {
   polygon.push_back(b);
   polygon.push_back(c);
   std::array<int,2> point{5, 50};
-  REQUIRE(!geofence::isIn<int>(polygon, point));
+  CHECK(!geofence::isIn<int>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and float point outside returns false") {
@@ -120,7 +119,7 @@ TEST_CASE("three-points-poplygon and float point outside returns false") {
   polygon.push_back(b);
   polygon.push_back(c);
   std::array<float,2> point{5.1, 50.5};
-  REQUIRE(!geofence::isIn<float>(polygon, point));
+  CHECK(!geofence::isIn<float>(polygon, point));
 }
 
 TEST_CASE("three-points-poplygon and float point inside returns true") {
@@ -132,7 +131,7 @@ TEST_CASE("three-points-poplygon and float point inside returns true") {
   polygon.push_back(b);
   polygon.push_back(c);
   std::array<float,2> point{5.2, 1.1};
-  REQUIRE(geofence::isIn<float>(polygon, point));
+  CHECK(geofence::isIn<float>(polygon, point));
 }
 
 TEST_CASE("WGS84 geofencing area - point outside") {
@@ -150,7 +149,7 @@ TEST_CASE("WGS84 geofencing area - point outside") {
   polygon.push_back(e);
   polygon.push_back(f);
   std::array<float,2> point{57.675747, 12.135182};
-  REQUIRE(!geofence::isIn<float>(polygon, point));
+  CHECK(!geofence::isIn<float>(polygon, point));
 }
 
 TEST_CASE("WGS84 geofencing area - point inside") {
@@ -168,7 +167,7 @@ TEST_CASE("WGS84 geofencing area - point inside") {
   polygon.push_back(e);
   polygon.push_back(f);
   std::array<float,2> point{57.736694, 12.096124};
-  REQUIRE(geofence::isIn<float>(polygon, point));
+  CHECK(geofence::isIn<float>(polygon, point));
 }
 
 TEST_CASE("multiple tests") {
@@ -190,67 +189,67 @@ TEST_CASE("multiple tests") {
 
   {
     std::array<uint8_t,2> point{0, 0};
-    REQUIRE(!geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{100, 100};
-    REQUIRE(!geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{1, 3};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{4, 5};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{5, 7};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{6, 7};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{7, 7};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{8, 7};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{9, 5};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{10, 5};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{11, 5};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{12, 5};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{12, 10};
-    REQUIRE(geofence::isIn<uint8_t>(polygon, point));
+    CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{13, 10};
-    REQUIRE(!geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
     std::array<uint8_t,2> point{12, 11};
-    REQUIRE(!geofence::isIn<uint8_t>(polygon, point));
+    CHECK(!geofence::isIn<uint8_t>(polygon, point));
   }
   {
-    std::array<uint8_t,2> point{17, 13};
-    REQUIRE(!geofence::isIn<uint8_t>(polygon, point));
+    std::array<uint8_t,2> point{17, 3};
+    CHECK(geofence::isIn<uint8_t>(polygon, point));
   }
 }
 

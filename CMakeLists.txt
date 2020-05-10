@@ -46,7 +46,7 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 enable_testing()
-add_executable(${PROJECT_NAME}-Runner ${CMAKE_CURRENT_SOURCE_DIR}/test/Test-geofence.cpp)
+add_executable(${PROJECT_NAME}-Runner ${CMAKE_CURRENT_SOURCE_DIR}/test/Test-geofence-main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/test/Test-geofence.cpp)
 target_link_libraries(${PROJECT_NAME}-Runner)
 add_test(NAME ${PROJECT_NAME}-Runner COMMAND ${PROJECT_NAME}-Runner)
 

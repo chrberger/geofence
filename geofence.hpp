@@ -113,7 +113,8 @@ inline bool isIn(std::vector<std::array<T,2>> &polygon, std::array<T,2> &p) {
   static_assert(std::is_arithmetic<T>::value, "T must be an arithmetic type");
   bool inside{false};
   if (2 < polygon.size()) {
-    auto convexHull{getConvexHull<T>(polygon)};
+    //auto convexHull{getConvexHull<T>(polygon)};
+    auto convexHull{polygon};
     constexpr const uint8_t X{0};
     constexpr const uint8_t Y{1};
     const std::size_t POINTS{convexHull.size()};
